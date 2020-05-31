@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from django.core import checks
 
 from django_test_migrations.autonames import CHECK_NAME, check_migration_names
+from django_test_migrations.db import checks as database_configuration_checks
 
 
 class AutoNames(AppConfig):
@@ -41,3 +42,16 @@ class AutoNames(AppConfig):
     def ready(self):
         """That's how we register our check when apps are ready."""
         checks.register(checks.Tags.compatibility)(check_migration_names)
+
+
+class DatabaseConfiguration(AppConfig):
+    """Class to install this check into ``INSTALLED_APPS`` in ``django``."""
+
+    #: Part of Django API.
+    name = database_configuration_checks.CHECK_NAME
+
+    def ready(self):
+        """Register database configuration checks."""
+        checks.register(checks.Tags.database)(
+            database_configuration_checks.check_statement_timeout_setting,
+        )
